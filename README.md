@@ -12,7 +12,7 @@ CUDA GPU is required for generating data <br />
 
 # Usage
 #### Run NeRF
-Inside nerf.py adjust with desired settings <br />
+Inside ```nerf.py``` adjust with desired settings <br />
 ```
 if __name__ == "__main__":
     Inference(
