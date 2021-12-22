@@ -30,11 +30,11 @@ Inside folder location make sure to have images/ folder containing all of your i
 
 After COLMAP is finished it will output ```poses_bounds.npy``` and ```sparse/``` folder containing necessary data for NeRF. <br />
 
-If you do not wish to use LLFF you can pass ```data_type='npz', _file='my_data.npz'``` and use .npz file containing images, poses and focal
-
 ###### Pregenerated Data
 
-Check [Pregenerated Data](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1) <br />
+If you do not wish to use LLFF you can pass ```data_type='npz', _file='my_data.npz'``` and use .npz file containing images, poses and focal <br />
+
+Check [Pregenerated Data](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1) (synthetic data is not supported) <br />
 
 # Acknowledgements
 https://keras.io/examples/vision/nerf/ <br />
