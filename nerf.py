@@ -1,60 +1,3 @@
-"""
-Title: 3D volumetric rendering with NeRF
-Authors: [Aritra Roy Gosthipaty](https://twitter.com/arig23498), [Ritwik Raha](https://twitter.com/ritwik_raha)
-Date created: 2021/08/09
-Last modified: 2021/08/09
-Description: Minimal implementation of volumetric rendering as shown in NeRF.
-"""
-"""
-## Introduction
-
-In this example, we present a minimal implementation of the research paper
-[**NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis**](https://arxiv.org/abs/2003.08934)
-by Ben Mildenhall et. al. The authors have proposed an ingenious way
-to *synthesize novel views of a scene* by modelling the *volumetric
-scene function* through a neural network.
-
-To help you understand this intuitively, let's start with the following question:
-*would it be possible to give to a neural
-network the position of a pixel in an image, and ask the network
-to predict the color at that position?*
-
-| ![2d-train](https://i.imgur.com/DQM92vN.png) |
-| :---: |
-| **Figure 1**: A neural network being given coordinates of an image
-as input and asked to predict the color at the coordinates. |
-
-The neural network would hypothetically *memorize* (overfit on) the
-image. This means that our neural network would have encoded the entire image
-in its weights. We could query the neural network with each position,
-and it would eventually reconstruct the entire image.
-
-| ![2d-test](https://i.imgur.com/6Qz5Hp1.png) |
-| :---: |
-| **Figure 2**: The trained neural network recreates the image from scratch. |
-
-A question now arises, how do we extend this idea to learn a 3D
-volumetric scene? Implementing a similar process as above would
-require the knowledge of every voxel (volume pixel). Turns out, this
-is quite a challenging task to do.
-
-The authors of the paper propose a minimal and elegant way to learn a
-3D scene using a few images of the scene. They discard the use of
-voxels for training. The network learns to model the volumetric scene,
-thus generating novel views (images) of the 3D scene that the model
-was not shown at training time.
-
-There are a few prerequisites one needs to understand to fully
-appreciate the process. We structure the example in such a way that
-you will have all the required knowledge before starting the
-implementation.
-"""
-
-"""
-## Setup
-"""
-
-# Setting random seed to obtain reproducible results.
 import tensorflow as tf
 
 tf.random.set_seed(42)
@@ -68,7 +11,6 @@ from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 
-from load_llff import load_llff_data
 from utils import *
 
 class NeRF(keras.Model):
@@ -199,24 +141,40 @@ class TrainMonitor(keras.callbacks.Callback):
         plt.close()
 
 class Inference:
-    def __init__(self, batch_size=5, num_samples=32, pos_encode_dims=16, epochs=20, file_name='tiny_nerf_data.npz', url='https://people.eecs.berkeley.edu/~bmild/nerf/tiny_nerf_data.npz') -> None:
+    def __init__(self, data_type='llff', spherify=False, batch_size=5, num_samples=32, pos_encode_dims=16, epochs=30, _file='tiny_nerf_data.npz', url='https://people.eecs.berkeley.edu/~bmild/nerf/tiny_nerf_data.npz') -> None:
         AUTO = tf.data.AUTOTUNE
         BATCH_SIZE = batch_size
         NUM_SAMPLES = num_samples
         POS_ENCODE_DIMS = pos_encode_dims
         EPOCHS = epochs
 
-        # Download the data if it does not already exist.
-        if not os.path.exists(file_name) and 'http' in url:
-            data = keras.utils.get_file(fname=file_name, origin=url)
-        else:
-            data = file_name
+        if data_type == 'llff':
+            images, poses, bds, render_poses, i_test = load_llff_data(_file, 4,
+                                                                    recenter=True, bd_factor=.75,
+                                                                    spherify=spherify)
+                                                                    
+            hwf = poses[0, :3, -1]
+            poses = poses[:, :3, :4]
+            print('Loaded llff', images.shape,
+                render_poses.shape, hwf, _file)
 
-        data = np.load(data)
-        images = data["images"]
-        im_shape = images.shape
-        (num_images, H, W, _) = images.shape
-        (poses, focal) = (data["poses"], data["focal"])
+            H, W, focal = hwf
+            H, W = int(H), int(W)
+            hwf = [H, W, focal]
+
+            (num_images, _, _, _) = images.shape
+        else:
+            # Download the data if it does not already exist.
+            if not os.path.exists(_file) and 'http' in url:
+                data = keras.utils.get_file(fname=_file, origin=url)
+            else:
+                data = _file
+
+            data = np.load(data)
+            images = data["images"]
+            #im_shape = images.shape
+            (num_images, H, W, _) = images.shape
+            (poses, focal) = (data["poses"], data["focal"])
 
         # Plot a random image from the dataset for visualization.
         plt.imshow(images[np.random.randint(low=0, high=num_images)])
@@ -259,9 +217,6 @@ class Inference:
         test_imgs, test_rays = next(iter(train_ds))
         test_rays_flat, test_t_vals = test_rays
 
-        loss_list = []
-
-
         num_pos = H * W * NUM_SAMPLES
         nerf_model = get_nerf_model(num_layers=8, num_pos=num_pos, pos_encode_dims=POS_ENCODE_DIMS)
 
@@ -282,7 +237,6 @@ class Inference:
             callbacks=[TrainMonitor(EPOCHS, test_rays_flat, test_t_vals, BATCH_SIZE, NUM_SAMPLES, H, W)],
             steps_per_epoch=split_index // BATCH_SIZE,
         )
-
 
         create_gif("images/*.png", "training.gif")
 
@@ -327,7 +281,6 @@ class Inference:
             # Get the camera to world matrix.
             c2w = pose_spherical(theta, -30.0, 4.0)
 
-            #
             ray_oris, ray_dirs = get_rays(H, W, focal, c2w)
             rays_flat, t_vals = render_flat_rays(
                 ray_oris, ray_dirs, near=2.0, far=6.0, num_samples=NUM_SAMPLES, pos_encode_dims=POS_ENCODE_DIMS, rand=False
@@ -363,4 +316,8 @@ class Inference:
         imageio.mimwrite(rgb_video, rgb_frames, fps=30, quality=7, macro_block_size=None)
 
 if __name__ == "__main__":
-    Inference(epochs=20)
+    Inference(
+        epochs=200,
+        _file='./fern',
+        data_type='llff'
+    )

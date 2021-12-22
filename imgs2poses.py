@@ -14,5 +14,5 @@ if args.match_type != 'exhaustive_matcher' and args.match_type != 'sequential_ma
 	print('ERROR: matcher type ' + args.match_type + ' is not valid.  Aborting')
 	sys.exit()
 
-if __name__=='__main__':
+if __name__ == '__main__':
     gen_poses(args.scenedir, args.match_type)
