@@ -32,7 +32,7 @@ After COLMAP is finished it will output ```poses_bounds.npy``` and ```sparse/```
 
 ###### Pregenerated Data
 
-If you do not wish to use LLFF you can pass ```data_type='npz', _file='my_data.npz'``` and use .npz file containing images, poses and focal <br />
+If you do not wish to use LLFF you can pass ```data_type='npz', _file='my_data.npz'``` and use .npz file containing images, poses and focal. <br />
 
 Check [Pregenerated Data](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1) (synthetic data is not supported) <br />
 
