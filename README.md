@@ -6,6 +6,10 @@ Representing Scenes as Neural Radiance Fields for View Synthesis
 
 ![nerf-volumetric](example/download.png?raw=true)
 
+# Requirements
+CUDA GPU is required for generating data <br />
+```pip install -r requirements.txt```
+
 # Usage
 #### Run NeRF
 #### Inside nerf.py adjust with desired settings
@@ -22,11 +26,9 @@ if __name__ == "__main__":
 #### Data
 ###### Generating Data
 NeRF requires poses for images, to generate poses run ```python imgs2poses.py <your_folder>``` script uses COLMAP to run structure from motion to get 6-DoF camera poses and near/far depth bounds for the scene. For installing COLMAP check [colmap.github.io/install.html](https://colmap.github.io/install.html)
-Inside folder location make sure to have images/ folder containing all of your images that NeRF will run through. <br />
+Inside folder location make sure to have images/ folder containing all of your images. <br />
 
 After COLMAP is finished it will output ```poses_bounds.npy``` and ```sparse/``` folder containing necessary data for NeRF. <br />
-
-<br />
 
 If you do not wish to use LLFF you can pass ```data_type='npz', _file='my_data.npz'``` and use .npz file containing images, poses and focal
 
