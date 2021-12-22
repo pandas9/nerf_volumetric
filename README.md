@@ -1,5 +1,5 @@
 # Neural Radiance Fields Volumetric Rendering
-Based on [github.com/bmild/nerf](https://www.github.com/bmild/nerf)
+Representing Scenes as Neural Radiance Fields for View Synthesis
 
 ###### The authors of the paper propose a minimal and elegant way to learn a 3D scene using a few images of the scene. They discard the use of voxels for training. The network learns to model the volumetric scene, thus generating novel views (images) of the 3D scene that the model was not shown at training time.
 [Source: Keras](https://keras.io/examples/vision/nerf/)
@@ -7,8 +7,8 @@ Based on [github.com/bmild/nerf](https://www.github.com/bmild/nerf)
 ![nerf-volumetric](example/download.png?raw=true)
 
 # Usage
-##### Run NeRF
-##### Inside nerf.py adjust with desired settings
+#### Run NeRF
+#### Inside nerf.py adjust with desired settings
 ```
 if __name__ == "__main__":
     Inference(
@@ -19,14 +19,14 @@ if __name__ == "__main__":
 
 ```
 
-##### Data
+#### Data
 ###### Generating Data
-NeRF requires poses for images, to generate poses run ```python imgs2poses.py <your_folder>``` script uses COLMAP to run structure from motion to get 6-DoF camera poses and near/far depth bounds for the scene. For installing COLMAP check [colmap.github.io/install.html](https://colmap.github.io/install.html) <br />
-Inside folder location make sure to have /images folder containing all of your images that NeRF will run through. <br />
+NeRF requires poses for images, to generate poses run ```python imgs2poses.py <your_folder>``` script uses COLMAP to run structure from motion to get 6-DoF camera poses and near/far depth bounds for the scene. For installing COLMAP check [colmap.github.io/install.html](https://colmap.github.io/install.html)
+Inside folder location make sure to have images/ folder containing all of your images that NeRF will run through. <br />
+
+After COLMAP is finished it will output ```poses_bounds.npy``` and ```sparse/``` folder containing necessary data for NeRF. <br />
 
 <br />
-
-After COLMAP is finished it will output ```poses_bounds.npy``` and ```/sparse``` folder containing necessary data for NeRF. <br />
 
 If you do not wish to use LLFF you can pass ```data_type='npz', _file='my_data.npz'``` and use .npz file containing images, poses and focal
 
